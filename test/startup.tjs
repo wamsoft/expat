@@ -1,0 +1,84 @@
+// -----------------------------------------------------------------------------
+// expat プラグイン 実機テスト
+//   krkrz64.exe をこのフォルダ(test)を引数に起動すると自動実行される起動スクリプト。
+//   expat.dll を読み込み、XMLParser を継承したパーサでコールバック動作と
+//   UTF-8<->UTF-16 変換(マルチバイト文字)を検証する。実行手順は readme.txt 参照。
+// -----------------------------------------------------------------------------
+var fails = 0;
+function log(s) { Debug.message(s); }
+function check(cond, name) {
+	if (cond) { log("OK   : " + name); }
+	else { log("FAIL : " + name); fails++; }
+}
+try { Debug.startLogToFile(true); } catch(e) {}
+
+log("==== expat test start ====");
+try {
+	Plugins.link("expat.dll");
+	log("plugin linked");
+} catch(e) {
+	log("PLUGIN LINK FAILED: " + e.message);
+	System.exit(90);
+}
+
+// XMLParser を継承し、コールバックを収集するテストパーサ
+class TestParser extends XMLParser {
+	var starts, ends, chars, comments, cdata;
+	function TestParser() {
+		global.XMLParser.XMLParser();
+		starts = []; ends = []; chars = ""; comments = []; cdata = 0;
+	}
+	function startElement(name, atts) {
+		var s = name;
+		if (atts.id   !== void) s += "#" + atts.id;
+		if (atts.kind !== void) s += "@" + atts.kind;
+		starts.add(s);
+	}
+	function endElement(name) { ends.add(name); }
+	function characterData(data) { chars += data; }
+	function comment(data) { comments.add(data); }
+	function startCdataSection() { cdata++; }
+}
+
+try {
+	// ---- 文字列パース ----
+	var p = new TestParser();
+	var ok = p.parse(
+		'<?xml version="1.0" encoding="UTF-8"?>' +
+		'<root kind="x"><a id="1">hello</a><b>世界のXML</b></root>');
+	check(ok === true,                              "parse() returned true");
+	check(p.starts.find("root@x") >= 0,          "startElement root + attr(kind)");
+	check(p.starts.find("a#1") >= 0,             "startElement a + attr(id)");
+	check(p.ends.find("root") >= 0,              "endElement root");
+	check(p.chars.indexOf("hello") >= 0,            "characterData ascii");
+	check(p.chars.indexOf("世界のXML") >= 0,        "characterData multibyte (UTF-8<->UTF-16)");
+	log("  chars=" + p.chars);
+
+	// ---- パースエラー ----
+	var e = new TestParser();
+	var okE = e.parse("<root><unclosed></root>");
+	check(okE === false,                            "malformed parse returns false");
+	check(e.errorCode != 0,                         "errorCode set on error");
+	log("  errorString=" + e.errorString + " line=" + e.currentLineNumber);
+
+	// ---- ファイルパース (parseStorage) ----
+	if (Storages.isExistentStorage("test.xml")) {
+		var f = new TestParser();
+		var okF = f.parseStorage("test.xml");
+		check(okF === true,                         "parseStorage returned true");
+		check(f.starts.find("catalog@sample") >= 0, "storage: catalog");
+		check(f.starts.find("book#b1") >= 0,     "storage: book b1");
+		check(f.chars.indexOf("吉里吉里Z 入門") >= 0, "storage: multibyte title");
+		check(f.chars.indexOf("わたなべごう") >= 0, "storage: multibyte author");
+		check(f.cdata >= 1,                         "storage: cdata section");
+		check(f.comments.count >= 1,                "storage: comment");
+	} else {
+		log("skip parseStorage (test.xml not found)");
+	}
+
+	log("==== done. fails=" + fails + " ====");
+} catch(ex) {
+	log("EXCEPTION: " + ex.message);
+	fails += 100;
+}
+System.exit(fails);

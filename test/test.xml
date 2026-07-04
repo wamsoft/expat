@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog kind="sample">
+	<book id="b1">
+		<title>吉里吉里Z 入門</title>
+		<author>わたなべごう</author>
+		<price currency="JPY">1980</price>
+	</book>
+	<book id="b2">
+		<title>XML &amp; expat</title>
+		<note><![CDATA[ここは CDATA セクション <tag> はそのまま ]]></note>
+	</book>
+	<!-- コメント行 -->
+</catalog>

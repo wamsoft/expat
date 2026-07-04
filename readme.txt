@@ -3,17 +3,22 @@ Author: わたなべごう
 
 ●これはなに？
 
- expat を使って XML を処理するパーサプラグインです
+ expat を使って XML を処理するパーサプラグインです。
+ XMLParser クラスを登録します。パース中は対象オブジェクトの startElement /
+ endElement / characterData / comment / processingInstruction / cdata 等の
+ メソッドがコールバックされます (DOM 実装例は XML.tjs 参照)。
+
+ ※本プラグインは旧 Win32 専用実装を全ビルドバリアント(WIN/SDL/LIB)対応へ
+   近代化したものです。windows.h/DllMain/WideCharToMultiByte/IStream 等の
+   Win32 依存を撤去し、UTF-8<->UTF-16 変換はエンジン提供の
+   TVPUtf8ToWideCharString / TVPWideCharToUtf8String を、ファイル入力は
+   iTJSBinaryStream(TVPCreateStream) を使用。クラス登録は ncbind 化しています。
 
 ●コンパイル方法
 
- Expat をインストールしておきます
- 
-   http://expat.sourceforge.net/
-
-   expat_win32bin_2_0_0.exe
-
- インストール先を EXPAT_HOME に定義しておいてください
+ vcpkg で expat が必要です (vcpkg.json 参照)。VCPKG_ROOT を設定した状態で
+ umbrella の CMake ビルドに含めれば自動で解決されます。expat は静的リンク
+ されるため配布時に別途 DLL は不要です。
 
 ●使い方
 

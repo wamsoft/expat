@@ -1,0 +1,5 @@
+build
+*.suo
+# test 実行時に生成される出力(非同梱)
+test/out.txt
+test/err.txt
