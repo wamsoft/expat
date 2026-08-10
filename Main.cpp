@@ -310,6 +310,11 @@ static void PreRegistCallback() {
 	TVPAddImportantLog(ttstr(expat_copyright));
 }
 NCB_PRE_REGIST_CALLBACK(PreRegistCallback);
+// 同梱コンポーネントのライセンスを本体収集機構へ登録
+// (LicensesGen.cpp = licenses/manifest.json から生成)
+extern void RegisterExpatLicenses();
+NCB_PRE_REGIST_CALLBACK(RegisterExpatLicenses);
+
 
 NCB_REGISTER_CLASS(XMLParser)
 {

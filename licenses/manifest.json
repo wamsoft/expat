@@ -1,0 +1,5 @@
+{
+  "entries": [
+    { "name": "expat", "group": "plugin:expat", "file": "texts/expat.txt" }
+  ]
+}

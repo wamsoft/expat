@@ -13,6 +13,7 @@ krkrz_plugin(expat
     NCBIND
     SOURCES
         Main.cpp
+        LicensesGen.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}
     LIBRARIES
