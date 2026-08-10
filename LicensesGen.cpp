@@ -3,6 +3,10 @@
 
 #include "tp_stub.h"
 
+/* License API 非対応バージョンの tp_stub / 本体ヘッダと組み合わせた
+   ビルドでは登録をまるごとスキップして空関数になる (互換ガード)。 */
+#ifdef TVP_HAS_LICENSE_API
+
 /* expat (1144 -> 677 bytes) */
 static const unsigned char lic_00[] = {
 	120,218,93,145,205,110,219,48,16,132,239,124,138,69,78,9,160,166,73,128,2,109,111,180,
@@ -40,3 +44,9 @@ void RegisterExpatLicenses()
 {
 	TVPRegisterLicense(TJS_W("expat"), TJS_W("plugin:expat"), lic_00, 677, 1144);
 }
+
+#else /* !TVP_HAS_LICENSE_API */
+
+void RegisterExpatLicenses() {}
+
+#endif /* TVP_HAS_LICENSE_API */
